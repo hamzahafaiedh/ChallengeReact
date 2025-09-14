@@ -1,0 +1,131 @@
+-- Database schema for the full stack challenge
+
+-- Items visible to everyone
+create table if not exists public.items (
+  id bigserial primary key,
+  title text not null,
+  category text not null,
+  rating numeric(2,1) not null check (rating >= 0 and rating <= 5),
+  updated_at timestamptz not null default now()
+);
+
+-- Favorites per client (no auth): composite PK ensures idempotency
+create table if not exists public.favorites (
+  client_id text not null,
+  item_id bigint not null references public.items(id) on delete cascade,
+  created_at timestamptz not null default now(),
+  primary key (client_id, item_id)
+);
+
+-- For the challenge, RLS is disabled to remove auth friction
+alter table public.items disable row level security;
+alter table public.favorites disable row level security;
+
+-- Sample data for testing (100 unique items)
+insert into public.items (title, category, rating) values
+  -- Books (35 items)
+  ('The Great Gatsby', 'Books', 4.2),
+  ('To Kill a Mockingbird', 'Books', 4.3),
+  ('1984', 'Books', 4.4),
+  ('Pride and Prejudice', 'Books', 4.1),
+  ('Harry Potter and the Sorcerer''s Stone', 'Books', 4.9),
+  ('The Catcher in the Rye', 'Books', 3.9),
+  ('Lord of the Rings', 'Books', 4.7),
+  ('Moby Dick', 'Books', 3.8),
+  ('Brave New World', 'Books', 4.0),
+  ('The Hobbit', 'Books', 4.6),
+  ('Fahrenheit 451', 'Books', 4.2),
+  ('Jane Eyre', 'Books', 4.0),
+  ('Wuthering Heights', 'Books', 3.7),
+  ('The Chronicles of Narnia', 'Books', 4.3),
+  ('Dune', 'Books', 4.5),
+  ('The Handmaid''s Tale', 'Books', 4.1),
+  ('Gone with the Wind', 'Books', 3.9),
+  ('The Kite Runner', 'Books', 4.4),
+  ('Life of Pi', 'Books', 4.0),
+  ('The Alchemist', 'Books', 4.2),
+  ('One Hundred Years of Solitude', 'Books', 4.3),
+  ('The Book Thief', 'Books', 4.5),
+  ('Beloved', 'Books', 4.1),
+  ('The Color Purple', 'Books', 4.2),
+  ('Of Mice and Men', 'Books', 3.8),
+  ('The Grapes of Wrath', 'Books', 4.0),
+  ('Slaughterhouse-Five', 'Books', 4.1),
+  ('Catch-22', 'Books', 3.9),
+  ('The Sun Also Rises', 'Books', 3.7),
+  ('On the Road', 'Books', 3.6),
+  ('The Picture of Dorian Gray', 'Books', 4.0),
+  ('Dracula', 'Books', 4.2),
+  ('Frankenstein', 'Books', 3.9),
+  ('The Strange Case of Dr. Jekyll and Mr. Hyde', 'Books', 3.8),
+  ('A Tale of Two Cities', 'Books', 3.9),
+
+  -- Movies (35 items)
+  ('Inception', 'Movies', 4.8),
+  ('The Godfather', 'Movies', 4.9),
+  ('Pulp Fiction', 'Movies', 4.5),
+  ('The Shawshank Redemption', 'Movies', 4.9),
+  ('Casablanca', 'Movies', 4.6),
+  ('Citizen Kane', 'Movies', 4.3),
+  ('Forrest Gump', 'Movies', 4.6),
+  ('Goodfellas', 'Movies', 4.4),
+  ('The Matrix', 'Movies', 4.9),
+  ('Schindler''s List', 'Movies', 4.8),
+  ('The Dark Knight', 'Movies', 4.7),
+  ('12 Angry Men', 'Movies', 4.6),
+  ('The Lord of the Rings: The Return of the King', 'Movies', 4.8),
+  ('The Godfather Part II', 'Movies', 4.7),
+  ('Apocalypse Now', 'Movies', 4.3),
+  ('Taxi Driver', 'Movies', 4.2),
+  ('Vertigo', 'Movies', 4.1),
+  ('Psycho', 'Movies', 4.4),
+  ('Sunset Boulevard', 'Movies', 4.2),
+  ('Some Like It Hot', 'Movies', 4.3),
+  ('Singin'' in the Rain', 'Movies', 4.5),
+  ('Gone with the Wind', 'Movies', 4.0),
+  ('Lawrence of Arabia', 'Movies', 4.2),
+  ('On the Waterfront', 'Movies', 4.1),
+  ('The Wizard of Oz', 'Movies', 4.4),
+  ('The Bridge on the River Kwai', 'Movies', 4.0),
+  ('Dr. Strangelove', 'Movies', 4.3),
+  ('The Graduate', 'Movies', 4.1),
+  ('Chinatown', 'Movies', 4.2),
+  ('The Deer Hunter', 'Movies', 3.9),
+  ('Raging Bull', 'Movies', 4.0),
+  ('E.T. the Extra-Terrestrial', 'Movies', 4.2),
+  ('Raiders of the Lost Ark', 'Movies', 4.5),
+  ('Star Wars', 'Movies', 4.6),
+  ('Jaws', 'Movies', 4.3),
+
+  -- Music (30 items)
+  ('Dark Side of the Moon', 'Music', 4.9),
+  ('Bohemian Rhapsody', 'Music', 4.6),
+  ('Abbey Road', 'Music', 4.7),
+  ('Thriller', 'Music', 4.8),
+  ('Hotel California', 'Music', 4.4),
+  ('Stairway to Heaven', 'Music', 4.8),
+  ('Imagine', 'Music', 4.5),
+  ('Billie Jean', 'Music', 4.3),
+  ('Like a Rolling Stone', 'Music', 4.7),
+  ('Smells Like Teen Spirit', 'Music', 4.2),
+  ('Hey Jude', 'Music', 4.6),
+  ('Purple Haze', 'Music', 4.4),
+  ('What''s Going On', 'Music', 4.5),
+  ('Respect', 'Music', 4.3),
+  ('Good Vibrations', 'Music', 4.1),
+  ('Johnny B. Goode', 'Music', 4.2),
+  ('Hound Dog', 'Music', 4.0),
+  ('I Can''t Get No Satisfaction', 'Music', 4.3),
+  ('My Generation', 'Music', 3.9),
+  ('Born to Run', 'Music', 4.4),
+  ('Bridge Over Troubled Water', 'Music', 4.5),
+  ('The Sound of Silence', 'Music', 4.2),
+  ('Mrs. Robinson', 'Music', 4.0),
+  ('Blowin'' in the Wind', 'Music', 4.1),
+  ('The Times They Are A-Changin''', 'Music', 4.0),
+  ('Yesterday', 'Music', 4.4),
+  ('Let It Be', 'Music', 4.3),
+  ('Come Together', 'Music', 4.2),
+  ('Here Comes the Sun', 'Music', 4.5),
+  ('Something', 'Music', 4.3)
+on conflict do nothing;
